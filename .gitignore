@@ -1,0 +1,25 @@
+# Environment variables
+.env
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+# (and any other names you might use for virtual environments)
+
+# IDE / Editor specific
+.vscode/
+# .idea/ # if using JetBrains IDEs
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg

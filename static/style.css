@@ -1,0 +1,7 @@
+/* static/style.css - Can be very minimal if most styling is inline or specific */
+body {
+    /* Base styles if not overridden by page-specific styles */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* You can add more global styles here if needed */

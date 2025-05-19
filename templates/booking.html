@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cityscope - Your Trip Summary!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #FFFBEB; /* Cityscope light beige */
+            color: #333333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .app-header { /* Consistent app header */
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        .app-header .logo-text {
+            font-size: 2em;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+        .app-header .logo-text .c-highlight { color: #FFD449; }
+
+        .container {
+            background-color: #ffffff;
+            padding: 35px 45px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 700px; 
+            text-align: left;
+        }
+        .confirmation-icon { text-align: center; margin-bottom: 25px; }
+        .confirmation-icon svg { width: 60px; height: 60px; color: #FFD449; }
+
+        .header-main { text-align: center; margin-bottom: 35px; }
+        .header-main h1 { color: #1A1A1A; font-size: 2.2em; font-weight: 600; margin-bottom: 10px; }
+        .header-main p { color: #555555; font-size: 1.1em; line-height: 1.6; }
+
+        .details-section-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-top: 30px;
+            margin-bottom: 20px; 
+            padding-bottom: 10px;
+            border-bottom: 2px solid #FFD449; 
+            display: inline-block; 
+        }
+        .form-group { margin-bottom: 22px; } 
+        .form-group label {
+            display: block; margin-bottom: 10px; font-weight: 500;
+            color: #4A5568; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        
+        /* Input fields styling */
+        input[type="text"].value-input {
+            width: 100%; 
+            padding: 14px 18px; 
+            border: 1px solid #E2E8F0; 
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1.05em; 
+            color: #2D3748; 
+            background-color: #F7FAFC; /* Default readonly background */
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        input[type="text"].value-input:read-only {
+            background-color: #F7FAFC;
+            border-color: #E2E8F0;
+            cursor: default;
+            opacity: 0.8;
+        }
+        input[type="text"].value-input:not(:read-only) {
+            background-color: #FFFFFF; /* Editable background */
+            border-color: #FFD449; /* Yellow border when editable */
+            box-shadow: 0 0 0 2px rgba(255, 212, 73, 0.2); /* Subtle focus glow */
+        }
+
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px 25px; 
+        }
+        @media (min-width: 650px) { 
+            .details-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-group.full-width { grid-column: 1 / -1; } 
+        }
+
+        .notice {
+            text-align: center;
+            margin-top: 35px; /* More space above notice */
+            padding: 18px;
+            background-color: #E6F7FF; 
+            border: 1px solid #B3D9FF;
+            color: #005288; 
+            border-radius: 8px;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+        .notice strong { color: #004085; } 
+        .actions-toolbar { /* For Edit/Save buttons */
+            display: flex;
+            justify-content: flex-end; /* Align buttons to the right */
+            gap: 10px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .button-secondary, .button-save {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            border: 1px solid transparent;
+        }
+        .button-secondary {
+            background-color: #6c757d; /* Grey */
+            color: white;
+        }
+        .button-secondary:hover { background-color: #5a6268; transform: translateY(-1px); }
+
+        .button-save {
+            background-color: #28a745; /* Green */
+            color: white;
+        }
+        .button-save:hover { background-color: #218838; transform: translateY(-1px); }
+        
+        .main-actions { /* For 'Plan Another Trip' */
+            text-align: center;
+            margin-top: 25px; 
+        }
+        .main-actions a.button-primary {
+            display: inline-block;
+            background-color: #FFD449; 
+            color: #1A1A1A; 
+            padding: 14px 35px; 
+            border-radius: 30px; 
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.05em; 
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+        .main-actions a.button-primary:hover {
+            background-color: #f0c132; 
+            transform: translateY(-2px); 
+        }
+        .app-footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo-text">City<span class="c-highlight">s</span>cope</div>
+    </header>
+
+    <div class="container">
+        <div class="confirmation-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6.75V2.25A2.25 2.25 0 0014.25 0H9.75A2.25 2.25 0 007.5 2.25v4.5m0 0V21A2.25 2.25 0 009.75 23.25h4.5A2.25 2.25 0 0016.5 21V6.75m-9 0h9" />
+            </svg>
+        </div>
+        <div class="header-main">
+            <h1>Your City Adventure Awaits!</h1>
+            <p>Here's a summary of your travel and experience preferences. You can edit them if needed.</p>
+        </div>
+
+        <div class="actions-toolbar">
+            <button id="editButton" class="button-secondary">Edit Details</button>
+            <button id="saveButton" class="button-save" style="display: none;">Save Changes</button>
+        </div>
+
+        <form id="bookingForm">
+            <div class="details-section-title"> Traveler & Destination</div>
+            <div class="details-grid">
+                <div class="form-group">
+                    <label for="name">Traveler Name</label>
+                    <input type="text" id="name" name="name" class="value-input" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="city">City of Travel</label>
+                    <input type="text" id="city" name="city" class="value-input" readonly>
+                </div>
+            </div>
+
+            <div class="details-section-title">Travel Dates & Times</div>
+            <div class="details-grid">
+                <div class="form-group">
+                    <label for="arrival_date">Arrival Date</label>
+                    <input type="text" id="arrival_date" name="arrival_date" class="value-input" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="arrival_time">Arrival Time</label>
+                    <input type="text" id="arrival_time" name="arrival_time" class="value-input" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="departure_date">Departure Date</label>
+                    <input type="text" id="departure_date" name="departure_date" class="value-input" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="departure_time">Departure Time</label>
+                    <input type="text" id="departure_time" name="departure_time" class="value-input" readonly>
+                </div>
+            </div>
+
+            <div class="details-section-title">Preferred Experience</div>
+             <div class="details-grid">
+                <div class="form-group full-width">
+                    <label for="experience_details">Experience Details / Preferences</label>
+                    <input type="text" id="experience_details" name="experience_details" class="value-input" readonly>
+                </div>
+            </div>
+        </form>
+
+        <div class="notice" style="background-color: #E6F3FF; border-color: #B3D9FF; color: #004085;">
+            This summary is based on your chat with CityBot.
+            <br><strong>For this demo, changes are not saved to a database.</strong>
+        </div>
+
+        <div class="main-actions">
+            <a href="{{ url_for('home') }}" class="button-primary">Plan Another Trip!</a>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        © <span id="currentYear"></span> Cityscope. Let's Explore!
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        const formFields = ['name', 'city', 'arrival_date', 'arrival_time', 'departure_date', 'departure_time', 'experience_details'];
+        const initialValues = {}; // To store originally loaded values
+
+        const editButton = document.getElementById('editButton');
+        const saveButton = document.getElementById('saveButton');
+
+        function setFieldsReadOnly(isReadOnly) {
+            formFields.forEach(fieldId => {
+                const fieldElement = document.getElementById(fieldId);
+                if (fieldElement) {
+                    fieldElement.readOnly = isReadOnly;
+                }
+            });
+        }
+
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            function sanitize(str) {
+                if (!str) return '';
+                const temp = document.createElement('div');
+                temp.textContent = str;
+                return temp.innerHTML;
+            }
+
+            formFields.forEach(fieldId => {
+                const element = document.getElementById(fieldId);
+                const paramValue = params.get(fieldId);
+                if (element) {
+                    const valueToSet = sanitize(paramValue) || 'Not Specified';
+                    element.value = valueToSet;
+                    initialValues[fieldId] = valueToSet; // Store initial value
+                }
+            });
+            setFieldsReadOnly(true); // Initially all fields are read-only
+        };
+
+        editButton.addEventListener('click', function() {
+            if (editButton.textContent === 'Edit Details') {
+                setFieldsReadOnly(false);
+                editButton.textContent = 'Cancel Edit';
+                editButton.classList.remove('button-secondary');
+                editButton.classList.add('button-save'); // Change to "save" style or a cancel style
+                editButton.style.backgroundColor = '#dc3545'; // Red for cancel
+                saveButton.style.display = 'inline-block';
+                document.getElementById(formFields[0]).focus(); // Focus on the first field
+            } else { // "Cancel Edit" was clicked
+                // Restore initial values
+                formFields.forEach(fieldId => {
+                    const element = document.getElementById(fieldId);
+                    if (element) {
+                        element.value = initialValues[fieldId];
+                    }
+                });
+                setFieldsReadOnly(true);
+                editButton.textContent = 'Edit Details';
+                editButton.style.backgroundColor = ''; // Reset style
+                editButton.classList.remove('button-save');
+                editButton.classList.add('button-secondary');
+                saveButton.style.display = 'none';
+            }
+        });
+
+        saveButton.addEventListener('click', function() {
+            setFieldsReadOnly(true);
+            editButton.textContent = 'Edit Details';
+            editButton.style.backgroundColor = ''; // Reset style
+            editButton.classList.remove('button-save');
+            editButton.classList.add('button-secondary');
+            saveButton.style.display = 'none';
+            
+            // For a real app, you'd collect current values and send to server
+            // const currentData = {};
+            // formFields.forEach(fieldId => {
+            //     currentData[fieldId] = document.getElementById(fieldId).value;
+            // });
+            // console.log("Data to save:", currentData);
+            alert("Changes 'saved' for this demo! (Data is not actually persisted).");
+        });
+
+    </script>
+</body>
+</html>

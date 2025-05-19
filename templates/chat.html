@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cityscope Trip Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #FFFBEB; /* Cityscope light beige */
+            color: #333333;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 550px; /* Slightly wider */
+            background-color: #FFFFFF;
+            border-radius: 16px; /* More rounded */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            height: 85vh;
+            max-height: 750px;
+        }
+        .chat-header {
+            background-color: #1A1A1A; /* Cityscope Dark */
+            color: #FFD449; /* Cityscope Yellow text */
+            padding: 18px 25px;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            text-align: center;
+        }
+        .chat-header .logo-text {
+            font-size: 1.6em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        /* .chat-header .logo-text .c-highlight {} */ /* Not strictly needed if 'S' is not specially styled */
+
+        #chatbox {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Increased gap */
+        }
+        .message {
+            padding: 12px 18px; /* More padding */
+            border-radius: 20px; /* More pill-like */
+            max-width: 80%; /* Slightly wider messages */
+            word-wrap: break-word;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+        .user-message {
+            background-color: #FFD449; /* Cityscope Yellow */
+            color: #1A1A1A; /* Dark text on yellow */
+            margin-left: auto;
+            border-bottom-right-radius: 6px; /* Slightly different rounding for distinction */
+        }
+        .bot-message {
+            background-color: #F0F2F5; /* Lighter grey for bot */
+            color: #1A1A1A;
+            margin-right: auto;
+            border-bottom-left-radius: 6px;
+        }
+        .chat-input-area {
+            display: flex;
+            padding: 15px 20px; /* Balanced padding */
+            border-top: 1px solid #E0E0E0;
+            background-color: #FAFAFA; /* Subtle background for input area */
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+        #userInput {
+            flex-grow: 1;
+            padding: 14px 18px;
+            border: 1px solid #DCDCDC;
+            border-radius: 25px; /* Pill shape input */
+            margin-right: 12px;
+            font-size: 1em;
+            background-color: #fff;
+        }
+        #userInput:focus {
+            outline: none;
+            border-color: #FFD449; /* Yellow focus */
+            box-shadow: 0 0 0 3px rgba(255, 212, 73, 0.3);
+        }
+        #sendButton {
+            padding: 0 25px; 
+            background-color: #1A1A1A; /* Cityscope Dark */
+            color: #FFD449; /* Cityscope Yellow */
+            border: none;
+            border-radius: 25px; /* Pill shape button */
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        #sendButton:hover {
+            background-color: #333333; 
+            transform: translateY(-1px);
+        }
+        #sendButton:disabled {
+            background-color: #A0A0A0;
+            cursor: not-allowed;
+            transform: translateY(0);
+        }
+        .loading-dots span {
+            display: inline-block; width: 8px; height: 8px;
+            background-color: #888; border-radius: 50%;
+            animation: blink 1.4s infinite both;
+        }
+        .loading-dots span:nth-child(2) { animation-delay: .2s; }
+        .loading-dots span:nth-child(3) { animation-delay: .4s; }
+        @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
+        
+        #redirectLinkContainer { padding: 0 20px 15px; text-align: center; }
+        #redirectLinkContainer a {
+            color: #1A1A1A; 
+            background-color: #FFD449; 
+            padding: 10px 20px; /* Adjusted padding */
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600; /* Bolder link text */
+            display: inline-block;
+            margin-top: 10px; /* Add some space above */
+            transition: background-color 0.2s, transform 0.1s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #redirectLinkContainer a:hover { 
+            background-color: #f0c132; 
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+             <div class="logo-text">Cityscope Trip Planner</div>
+        </div>
+        <div id="chatbox">
+            <!-- Messages loaded by JS -->
+        </div>
+        <div id="redirectLinkContainer"></div>
+        <div class="chat-input-area">
+            <input type="text" id="userInput" placeholder="Tell me about your trip...">
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const redirectLinkContainer = document.getElementById('redirectLinkContainer');
+
+        let conversationHistory = {{ history | tojson | safe }};
+
+        function renderHistory() {
+            chatbox.innerHTML = '';
+            conversationHistory.forEach(msg => {
+                if (msg.content) {
+                     addMessageToUI(msg.content, msg.role === 'user' ? 'user' : 'bot');
+                }
+            });
+             chatbox.scrollTop = chatbox.scrollHeight; // Scroll after rendering all
+        }
+        
+        function addMessageToUI(text, senderClass) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', senderClass + '-message');
+            // Basic XSS prevention by setting textContent
+            // If you need to render HTML from the bot, use a sanitizer library
+            messageDiv.textContent = text; 
+            chatbox.appendChild(messageDiv);
+            // chatbox.scrollTop = chatbox.scrollHeight; // Moved to renderHistory for efficiency
+        }
+        
+        function showLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.classList.add('message', 'bot-message', 'loading-dots');
+            loadingDiv.id = 'loadingIndicator';
+            loadingDiv.innerHTML = '<span></span><span></span><span></span>';
+            chatbox.appendChild(loadingDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function hideLoadingIndicator() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) loadingIndicator.remove();
+        }
+
+        async function sendMessage() {
+            const messageText = userInput.value.trim();
+            if (!messageText) return;
+
+            addMessageToUI(messageText, 'user');
+            chatbox.scrollTop = chatbox.scrollHeight; // Scroll after adding user message
+            
+            // Client sends only new message; server uses session for full history.
+            // conversationHistory.push({ "role": "user", "content": messageText }); // Update local for immediate display continuity if needed, but server is source of truth.
+
+            userInput.value = '';
+            showLoadingIndicator();
+            sendButton.disabled = true;
+            userInput.disabled = true;
+
+            try {
+                const response = await fetch("{{ url_for('chat_endpoint') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+                
+                hideLoadingIndicator(); // Hide loading before processing response
+                
+                const data = await response.json(); // Always try to parse JSON
+
+                if (!response.ok) { // Check if response status is not 2xx
+                    addMessageToUI(data.reply || `Error: ${response.status} - ${data.error_details || 'Unknown error'}`, 'bot');
+                } else {
+                    addMessageToUI(data.reply, 'bot');
+                    // Update local conversation history with bot's reply for continuity
+                    // conversationHistory.push({ "role": "assistant", "content": data.reply });
+                    
+                    redirectLinkContainer.innerHTML = ''; // Clear previous links
+                    if (data.redirect_url) {
+                        const link = document.createElement('a');
+                        link.href = data.redirect_url;
+                        link.textContent = "View Your Trip Summary!";
+                        link.target = "_blank";
+                        redirectLinkContainer.appendChild(link);
+                    }
+                }
+            } catch (error) { // Catches network errors or if response.json() fails fundamentally
+                hideLoadingIndicator();
+                console.error('Error sending message or processing response:', error);
+                addMessageToUI('Connection error or issue processing server response. Please try again.', 'bot');
+            } finally { // Ensure UI elements are re-enabled
+                sendButton.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+                chatbox.scrollTop = chatbox.scrollHeight; // Scroll after bot message or error
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Initial rendering of history from server
+        renderHistory();
+        userInput.focus();
+    </script>
+</body>
+</html>

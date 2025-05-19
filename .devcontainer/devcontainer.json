@@ -1,0 +1,27 @@
+{
+    "name": "Python Booking Chatbot",
+    "image": "mcr.microsoft.com/devcontainers/python:3.10-bullseye",
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "18"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-azuretools.vscode-docker",
+                "bierner.github-markdown-preview"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.linting.pylintEnabled": true,
+                "python.linting.enabled": true,
+                "python.formatting.provider": "autopep8"
+            }
+        }
+    },
+    "forwardPorts": [5001],
+    "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt"
+}
